@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Model, QueryFilter, Types, UpdateQuery } from 'mongoose';
-import { NotFoundException } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 export abstract class AbstractRepository<
   TDocument extends { _id: Types.ObjectId },
 > {
@@ -20,7 +20,10 @@ export abstract class AbstractRepository<
     const document = await this.model.findOne(filterQuery, {}, { lean: true });
     if (!document) {
       this.logger.warn('Document not found with filterQuery', filterQuery);
-      throw new NotFoundException('Document not found.');
+      throw new RpcException({
+        statusCode: 404,
+        message: `${this.model.modelName} not found`,
+      });
     }
     return document;
   }
@@ -39,7 +42,10 @@ export abstract class AbstractRepository<
       this.logger.warn(
         `Document not found with filter query: ${JSON.stringify(filterQuery)}`
       );
-      throw new NotFoundException('The document was not found');
+      throw new RpcException({
+        statusCode: 404,
+        message: `${this.model.modelName} not found`,
+      });
     }
     return document;
   }
@@ -54,7 +60,10 @@ export abstract class AbstractRepository<
       this.logger.warn(
         `Document not found with filter query: ${JSON.stringify(filterQuery)}`
       );
-      throw new NotFoundException('The document was not found');
+      throw new RpcException({
+        statusCode: 404,
+        message: 'Document not found',
+      });
     }
     return document;
   }
