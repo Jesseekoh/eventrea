@@ -1,0 +1,13 @@
+{
+    "extends": "@eventrea/typescript-config/nestjs.json",
+    "exclude": [
+        "node_modules",
+        "test",
+        "dist",
+        "**/*spec.ts"
+    ],
+    "compilerOptions": {
+        "outDir": "dist",
+        "rootDir": "src"
+    }
+}

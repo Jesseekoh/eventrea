@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ConfigModule } from '../config/config.module';
-import { MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule, ModelDefinition } from '@nestjs/mongoose';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -14,6 +14,7 @@ import { MongooseModule } from '@nestjs/mongoose';
   ],
 })
 export class DatabaseModule {
-  // static forFeature(models: ModelDefinition[]) {
-  //   return MongooseModule.forFeature(models);
+  static forFeature(models: ModelDefinition[]) {
+    return MongooseModule.forFeature(models);
+  }
 }

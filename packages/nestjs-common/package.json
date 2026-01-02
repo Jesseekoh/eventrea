@@ -1,5 +1,5 @@
 {
-  "name": "@repo/nestjs-common",
+  "name": "@eventrea/nestjs-common",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -8,6 +8,12 @@
   "scripts": {
     "build": "tsc"
   },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.2",
@@ -15,9 +21,9 @@
     "mongoose": "^9.0.2"
   },
   "devDependencies": {
+    "@eventrea/typescript-config": "workspace:*",
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
-    "@repo/typescript-config": "workspace:*",
     "@types/node": "^22.10.7",
     "@types/supertest": "^6.0.2",
     "eslint": "^9.18.0",
@@ -26,6 +32,7 @@
     "globals": "^16.0.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
-    "typescript-eslint": "^8.20.0"
+    "typescript-eslint": "^8.20.0",
+    "ts-node": "^10.9.2"
   }
 }
