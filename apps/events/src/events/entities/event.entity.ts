@@ -122,11 +122,11 @@ export class Event {
   // @Prop({ type: [String], default: [] })
   // images: string[];
 
-  // @Prop({ type: Number, min: 0, default: 0 })
-  // price: number;
+  @Prop({ type: Number, min: 0, default: 0 })
+  price: number;
 
-  // @Prop({ type: String, uppercase: true, default: 'USD' })
-  // currency: string;
+  @Prop({ type: String, uppercase: true, default: 'NGN' })
+  currency: string;
 
   @Prop({ type: Number, min: 1 })
   capacity?: number;
@@ -169,7 +169,7 @@ export const EventSchema = SchemaFactory.createForClass(Event);
 // -------------------------------
 // Indexes
 // -------------------------------
-// EventSchema.index({ slug: 1 }, { unique: true });
+EventSchema.index({ slug: 1 }, { unique: true });
 // EventSchema.index({ status: 1, startDate: 1 });
 // EventSchema.index({ category: 1, status: 1 });
 // EventSchema.index({ organizerId: 1, status: 1 });

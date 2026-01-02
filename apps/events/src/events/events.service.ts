@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
-import { QueryEventDto } from './dto/query-event.dto';
+import {
+  CreateEventDto,
+  UpdateEventDto,
+  QueryEventDto,
+} from '@eventrea/nestjs-common';
 import { EventsRepository } from './events.repository';
 import { QueryFilter } from 'mongoose';
 import { EventDocument } from './entities/event.entity';
