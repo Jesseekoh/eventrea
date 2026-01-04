@@ -3,7 +3,7 @@ import {
   CreateEventDto,
   UpdateEventDto,
   QueryEventDto,
-} from '@eventrea/nestjs-common';
+} from '@eventrea/nestjs-common/dto';
 import { EventsRepository } from './events.repository';
 import { QueryFilter } from 'mongoose';
 import { EventDocument } from './entities/event.entity';
