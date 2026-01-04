@@ -6,7 +6,7 @@ import {
   UpdateEventDto,
   FindEventDto,
   QueryEventDto,
-} from '@eventrea/nestjs-common';
+} from '@eventrea/nestjs-common/dto';
 import { MessagePattern } from '@nestjs/microservices';
 import { Payload } from '@nestjs/microservices';
 @Controller('events')

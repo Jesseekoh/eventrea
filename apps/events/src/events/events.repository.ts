@@ -1,4 +1,4 @@
-import { AbstractRepository } from '@eventrea/nestjs-common';
+import { AbstractRepository } from '@eventrea/nestjs-common/database';
 import { Event, EventDocument } from './entities/event.entity';
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
