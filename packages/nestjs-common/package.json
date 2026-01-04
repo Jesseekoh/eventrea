@@ -9,9 +9,21 @@
     "build": "tsc"
   },
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "default": "./dist/index.js"
+    "./pipes": {
+      "types": "./src/pipes/index.ts",
+      "default": "./dist/pipes/index.js"
+    },
+    "./dto": {
+      "types": "./src/dto/index.ts",
+      "default": "./dist/dto/index.js"
+    },
+    "./database": {
+      "types": "./src/database/index.ts",
+      "default": "./dist/database/index.js"
+    },
+    "./config": {
+      "types": "./src/config/index.ts",
+      "default": "./dist/config/index.js"
     }
   },
   "dependencies": {
