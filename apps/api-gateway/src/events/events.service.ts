@@ -5,7 +5,7 @@ import {
   CreateEventDto,
   QueryEventDto,
   UpdateEventDto,
-} from '@eventrea/nestjs-common';
+} from '@eventrea/nestjs-common/dto';
 @Injectable()
 export class EventsService {
   constructor(

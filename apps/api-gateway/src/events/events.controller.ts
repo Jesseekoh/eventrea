@@ -12,9 +12,9 @@ import {
 import {
   CreateEventDto,
   UpdateEventDto,
-  ParseObjectIdPipe,
   QueryEventDto,
-} from '@eventrea/nestjs-common';
+} from '@eventrea/nestjs-common/dto';
+import { ParseObjectIdPipe } from '@eventrea/nestjs-common/pipes';
 
 @Controller('events')
 export class EventsController {
