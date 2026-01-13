@@ -24,7 +24,7 @@ export class EventsController {
   }
 
   @MessagePattern('events.create')
-  create(@Payload() dto: CreateEventDto) {
+  create(@Payload() dto: CreateEventDto & { organizerId: string }) {
     console.log(dto);
     return this.eventsService.create(dto);
   }

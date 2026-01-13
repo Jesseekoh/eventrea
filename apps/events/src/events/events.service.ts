@@ -5,7 +5,7 @@ import {
   QueryEventDto,
 } from '@eventrea/nestjs-common/dto';
 import { EventsRepository } from './events.repository';
-import { QueryFilter } from 'mongoose';
+import { QueryFilter, Types } from 'mongoose';
 import { EventDocument } from './entities/event.entity';
 import slugify from 'slugify';
 import { randomBytes } from 'crypto';
@@ -13,8 +13,9 @@ import { randomBytes } from 'crypto';
 @Injectable()
 export class EventsService {
   constructor(private readonly eventRepository: EventsRepository) {}
-  async create(createEventDto: CreateEventDto) {
-    const baseSlug = slugify(createEventDto.title, {
+  async create(createEventDto: CreateEventDto & { organizerId: string }) {
+    const { organizerId, ...eventData } = createEventDto;
+    const baseSlug = slugify(eventData.title, {
       lower: true,
       strict: true,
     });
@@ -25,7 +26,11 @@ export class EventsService {
     while (!created) {
       try {
         // Try to create the event with the current slug
-        await this.eventRepository.create({ ...createEventDto, slug });
+        await this.eventRepository.create({
+          ...eventData,
+          slug,
+          organizerId: new Types.ObjectId(organizerId),
+        });
         created = true;
       } catch (error: any) {
         // Check if error is a duplicate key error (MongoDB error code 11000)

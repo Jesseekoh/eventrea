@@ -18,8 +18,11 @@ export class EventsService {
   findAll(queryEventDto: QueryEventDto) {
     return this.eventClient.send('events.findAll', queryEventDto);
   }
-  create(createEventDto: CreateEventDto) {
-    return this.eventClient.send('events.create', createEventDto);
+  create(createEventDto: CreateEventDto, organizerId: string) {
+    return this.eventClient.send('events.create', {
+      ...createEventDto,
+      organizerId,
+    });
   }
 
   update(updateEventDto: UpdateEventDto) {

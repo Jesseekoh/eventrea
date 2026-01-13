@@ -96,13 +96,13 @@ export class Event {
   // @Prop()
   // endTime?: string;
 
-  // @Prop({
-  //   type: SchemaTypes.ObjectId,
-  //   ref: 'User',
-  //   required: true,
-  //   index: true,
-  // })
-  // organizerId: Types.ObjectId;
+  @Prop({
+    type: SchemaTypes.ObjectId,
+    // ref: 'User',
+    required: true,
+    index: true,
+  })
+  organizerId: Types.ObjectId;
 
   // @Prop({ trim: true })
   // organizerName?: string;
@@ -172,7 +172,7 @@ export const EventSchema = SchemaFactory.createForClass(Event);
 EventSchema.index({ slug: 1 }, { unique: true });
 // EventSchema.index({ status: 1, startDate: 1 });
 // EventSchema.index({ category: 1, status: 1 });
-// EventSchema.index({ organizerId: 1, status: 1 });
+EventSchema.index({ organizerId: 1, status: 1 });
 // EventSchema.index({ 'venue.city': 1, startDate: 1 });
 // EventSchema.index({ 'venue.country': 1, status: 1 });
 // EventSchema.index({ 'venue.coordinates': '2dsphere' });

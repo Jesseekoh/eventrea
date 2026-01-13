@@ -15,6 +15,7 @@ import {
   QueryEventDto,
 } from '@eventrea/nestjs-common/dto';
 import { ParseObjectIdPipe } from '@eventrea/nestjs-common/pipes';
+import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 
 @Controller('events')
 export class EventsController {
@@ -31,8 +32,12 @@ export class EventsController {
   }
 
   @Post()
-  create(@Body() createEventDto: CreateEventDto) {
-    return this.eventsService.create(createEventDto);
+  // @UseGuards(AuthGuard)
+  create(
+    @Body() createEventDto: CreateEventDto,
+    @Session() session: UserSession,
+  ) {
+    return this.eventsService.create(createEventDto, session.user.id);
   }
 
   @Patch(':id')
