@@ -60,7 +60,7 @@ model User {
   emailVerified Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  refreshToken  String?
+  sessions      Session[]
 
   // Relations
   organizedEvents Event[]         @relation("EventOrganizer")
@@ -129,4 +129,18 @@ model EventAttendee {
   @@unique([userId, eventId])
   @@index([eventId])
   @@map("event_attendees")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshToken String
+  userAgent    String?
+  ipAddress    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@map("sessions")
 }

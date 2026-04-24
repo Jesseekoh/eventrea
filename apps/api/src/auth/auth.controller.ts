@@ -5,6 +5,8 @@ import {
   Request,
   Res,
   UseGuards,
+  Ip,
+  Headers,
 } from '@nestjs/common';
 import { type FastifyReply } from 'fastify';
 import { AuthService } from './auth.service';
@@ -19,8 +21,13 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async signIn(@Request() req, @Res({ passthrough: true }) res: FastifyReply) {
-    const loginResult = await this.authService.login(req.user);
+  async signIn(
+    @Request() req,
+    @Res({ passthrough: true }) res: FastifyReply,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+  ) {
+    const loginResult = await this.authService.login(req.user, userAgent, ip);
     res.setCookie('Authentication', loginResult.access_token, {
       httpOnly: true,
       secure: true,
@@ -41,7 +48,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(@Request() req, @Res({ passthrough: true }) res: FastifyReply) {
-    await this.authService.logout(req.user.sub);
+    await this.authService.logout(req.user.sessionId);
     res.clearCookie('Authentication');
     res.clearCookie('Refresh');
     return { message: 'Logout successful' };
@@ -49,8 +56,20 @@ export class AuthController {
 
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
-  async refreshTokens(@Request() req, @Res({ passthrough: true }) res: FastifyReply) {
-    const tokens = await this.authService.refreshTokens(req.user.id, req.user.email, req.user.role);
+  async refreshTokens(
+    @Request() req,
+    @Res({ passthrough: true }) res: FastifyReply,
+    @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
+  ) {
+    const tokens = await this.authService.refreshTokens(
+      req.user.id,
+      req.user.email,
+      req.user.role,
+      req.user.sessionId,
+      userAgent,
+      ip
+    );
     res.setCookie('Authentication', tokens.access_token, {
       httpOnly: true,
       secure: true,
