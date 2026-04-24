@@ -4,6 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { SignInDTO } from './dto/signin.dto';
 import * as argon2 from 'argon2';
 import { SignUpDTO } from './dto/signup.dto';
@@ -16,6 +17,7 @@ export class AuthService {
     private readonly userService: UsersService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly prisma: PrismaService,
   ) {}
 
   async validateUser(email: string, pass: string) {
@@ -28,8 +30,13 @@ export class AuthService {
     return null;
   }
 
-  async getTokens(userId: string, email: string, role: string) {
-    const payload = { sub: userId, email, role };
+  async getTokens(
+    userId: string,
+    email: string,
+    role: string,
+    sessionId: string,
+  ) {
+    const payload = { sub: userId, email, role, sessionId };
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         expiresIn: '15m',
@@ -44,42 +51,88 @@ export class AuthService {
     return { access_token: accessToken, refresh_token: refreshToken };
   }
 
-  async updateRefreshToken(userId: string, refreshToken: string) {
-    const hashedRefreshToken = await argon2.hash(refreshToken);
-    await this.userService.updateUser({
-      where: { id: userId },
-      data: { refreshToken: hashedRefreshToken },
+  async createSession(userId: string, userAgent?: string, ipAddress?: string) {
+    return this.prisma.session.create({
+      data: {
+        userId,
+        refreshToken: '', // we update this right after
+        userAgent,
+        ipAddress,
+        expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
     });
   }
 
-  async login(user: User) {
-    const tokens = await this.getTokens(user.id, user.email, user.role);
-    await this.updateRefreshToken(user.id, tokens.refresh_token);
+  async login(user: User, userAgent?: string, ipAddress?: string) {
+    const session = await this.createSession(user.id, userAgent, ipAddress);
+    const tokens = await this.getTokens(
+      user.id,
+      user.email,
+      user.role,
+      session.id,
+    );
+    const hashedRefreshToken = await argon2.hash(tokens.refresh_token);
+
+    await this.prisma.session.update({
+      where: { id: session.id },
+      data: { refreshToken: hashedRefreshToken },
+    });
+
     return { message: 'Login successful', ...tokens };
   }
 
-  async logout(userId: string) {
-    await this.userService.updateUser({
-      where: { id: userId },
-      data: { refreshToken: null },
-    });
+  async logout(sessionId: string) {
+    if (sessionId) {
+      await this.prisma.session
+        .delete({ where: { id: sessionId } })
+        .catch(() => {});
+    }
   }
 
-  async validateRefreshToken(userId: string, refreshToken: string) {
-    const user = await this.userService.findUser({ id: userId });
-    if (!user || !user.refreshToken) {
+  async validateRefreshToken(sessionId: string, refreshToken: string) {
+    if (!sessionId) return null;
+    const session = await this.prisma.session.findUnique({
+      where: { id: sessionId },
+      include: { user: true },
+    });
+    if (!session) return null;
+    if (session.expiresAt < new Date()) {
+      await this.prisma.session
+        .delete({ where: { id: sessionId } })
+        .catch(() => {});
       return null;
     }
-    const refreshTokenMatches = await argon2.verify(user.refreshToken, refreshToken);
+    const refreshTokenMatches = await argon2.verify(
+      session.refreshToken,
+      refreshToken,
+    );
     if (refreshTokenMatches) {
-      return user;
+      return { ...session.user, sessionId: session.id };
     }
     return null;
   }
 
-  async refreshTokens(userId: string, email: string, role: string) {
-    const tokens = await this.getTokens(userId, email, role);
-    await this.updateRefreshToken(userId, tokens.refresh_token);
+  async refreshTokens(
+    userId: string,
+    email: string,
+    role: string,
+    oldSessionId: string,
+    userAgent?: string,
+    ipAddress?: string,
+  ) {
+    await this.prisma.session
+      .delete({ where: { id: oldSessionId } })
+      .catch(() => {});
+
+    const session = await this.createSession(userId, userAgent, ipAddress);
+    const tokens = await this.getTokens(userId, email, role, session.id);
+    const hashedRefreshToken = await argon2.hash(tokens.refresh_token);
+
+    await this.prisma.session.update({
+      where: { id: session.id },
+      data: { refreshToken: hashedRefreshToken },
+    });
+
     return tokens;
   }
   async signUp(signUpDto: SignUpDTO) {
