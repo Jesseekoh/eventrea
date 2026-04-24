@@ -2,5 +2,10 @@ packages:
   - "apps/*"
   - "packages/*"
 onlyBuiltDependencies:
+  - '@nestjs/core'
+  - '@prisma/client'
+  - '@prisma/engines'
   - "@tailwindcss/oxide"
+  - argon2
   - esbuild
+  - prisma
