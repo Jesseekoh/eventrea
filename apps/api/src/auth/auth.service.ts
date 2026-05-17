@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SignInDTO } from './dto/signin.dto';
@@ -59,6 +55,14 @@ export class AuthService {
         userAgent,
         ipAddress,
         expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      },
+    });
+  }
+
+  async getUserSessions(userId: string) {
+    return this.prisma.session.findMany({
+      where: {
+        userId: userId,
       },
     });
   }
@@ -123,7 +127,7 @@ export class AuthService {
     await this.prisma.session
       .delete({ where: { id: oldSessionId } })
       .catch(() => {});
-
+    console.log(userId);
     const session = await this.createSession(userId, userAgent, ipAddress);
     const tokens = await this.getTokens(userId, email, role, session.id);
     const hashedRefreshToken = await argon2.hash(tokens.refresh_token);
