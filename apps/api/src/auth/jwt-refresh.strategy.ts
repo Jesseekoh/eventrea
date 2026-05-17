@@ -5,7 +5,10 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { AuthService } from './auth.service';
 
 @Injectable()
-export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
+export class JwtRefreshStrategy extends PassportStrategy(
+  Strategy,
+  'jwt-refresh',
+) {
   constructor(
     private readonly configService: ConfigService,
     private readonly authService: AuthService,
@@ -27,10 +30,18 @@ export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token not found');
     }
-    const user = await this.authService.validateRefreshToken(payload.sessionId, refreshToken);
+    const user = await this.authService.validateRefreshToken(
+      payload.sessionId,
+      refreshToken,
+    );
     if (!user) {
       throw new UnauthorizedException('Invalid refresh token');
     }
-    return user;
+    return {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+      sessionId: user.sessionId,
+    };
   }
 }

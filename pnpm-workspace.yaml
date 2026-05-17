@@ -5,7 +5,9 @@ onlyBuiltDependencies:
   - '@nestjs/core'
   - '@prisma/client'
   - '@prisma/engines'
+  - '@scarf/scarf'
   - "@tailwindcss/oxide"
   - argon2
   - esbuild
   - prisma
+  - unrs-resolver
