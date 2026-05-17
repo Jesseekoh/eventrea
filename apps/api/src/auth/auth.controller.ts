@@ -16,11 +16,27 @@ import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { CurrentUser, type JwtUser } from './decorators/current-user.decorator';
 import { type User } from '@eventrea/prisma';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiCookieAuth,
+  ApiBody,
+} from '@nestjs/swagger';
+import { SignInDTO } from './dto/signin.dto';
 
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({ summary: 'Sign in with email and password' })
+  @ApiBody({ type: SignInDTO })
+  @ApiResponse({
+    status: 200,
+    description: 'Login successful. Sets Authentication and Refresh cookies.',
+  })
+  @ApiResponse({ status: 401, description: 'Invalid credentials' })
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async signIn(
@@ -47,6 +63,13 @@ export class AuthController {
     return loginResult;
   }
 
+  @ApiOperation({ summary: 'Log out the current user' })
+  @ApiCookieAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'Logout successful. Clears authentication cookies.',
+  })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
   @UseGuards(JwtAuthGuard)
   @Post('logout')
   async logout(
@@ -59,6 +82,10 @@ export class AuthController {
     return { message: 'Logout successful' };
   }
 
+  @ApiOperation({ summary: 'Refresh access and refresh tokens' })
+  @ApiCookieAuth()
+  @ApiResponse({ status: 200, description: 'Tokens refreshed successfully' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired refresh token' })
   @UseGuards(JwtRefreshGuard)
   @Post('refresh')
   async refreshTokens(
@@ -92,6 +119,13 @@ export class AuthController {
     return { message: 'Tokens refreshed', ...tokens };
   }
 
+  @ApiOperation({ summary: 'Get all sessions for the current user' })
+  @ApiCookieAuth()
+  @ApiResponse({
+    status: 200,
+    description: 'List of user sessions with current session marked',
+  })
+  @ApiResponse({ status: 401, description: 'Not authenticated' })
   @UseGuards(JwtAuthGuard)
   @Get('sessions')
   async getUserSessions(@CurrentUser() user: JwtUser) {
@@ -104,6 +138,13 @@ export class AuthController {
       };
     });
   }
+
+  @ApiOperation({ summary: 'Register a new user account' })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({
+    status: 409,
+    description: 'A user with this email already exists',
+  })
   @Post('register')
   signUp(@Body() signUpDto: SignUpDTO) {
     return this.authService.signUp(signUpDto);
